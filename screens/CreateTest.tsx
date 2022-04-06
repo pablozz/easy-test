@@ -25,13 +25,7 @@ export interface IQuestion {
 const CreateTest = ({ navigation }: CreateTestProps) => {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
-  const [questions, setQuestions] = useState<IQuestion[]>([
-    {
-      text: "",
-      answers: null,
-      type: "open",
-    },
-  ]);
+  const [questions, setQuestions] = useState<IQuestion[]>([]);
   const [questionType, setQuestionType] = useState<QuestionType>(
     questionTypesObject.open
   );
