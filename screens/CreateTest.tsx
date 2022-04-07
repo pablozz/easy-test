@@ -30,19 +30,20 @@ const CreateTest = ({ navigation }: CreateTestProps) => {
     questionTypesObject.open
   );
 
-  const submitTest = async () => {
+  const submitTest = async (): Promise<string> => {
     const test = {
       name,
       description,
       questions,
     };
-    return await fetch(Urls.DEV_API + "/tests", {
+    const response = await fetch(Urls.DEV_API + "/tests", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify(test),
-    }).then((res) => res.ok);
+    }).then((res) => res.json());
+    return response.code;
   };
 
   return (
@@ -62,32 +63,61 @@ const CreateTest = ({ navigation }: CreateTestProps) => {
       />
       {questions.map((question, index) => (
         <View key={index}>
-          <TextInput
-            style={styles.input}
-            placeholder="Question"
-            defaultValue={question.text}
-            onChangeText={(newText) =>
-              setQuestions(() => {
-                questions[index].text = newText;
-                return questions;
-              })
-            }
-          />
+          <View style={styles.questionWrap}>
+            <TextInput
+              style={styles.questionInput}
+              placeholder="Question"
+              defaultValue={question.text}
+              onChangeText={(newText) =>
+                setQuestions(() => {
+                  questions[index].text = newText;
+                  return questions;
+                })
+              }
+            />
+            <Button
+              onPress={() =>
+                setQuestions([
+                  ...questions.slice(0, index),
+                  ...questions.slice(index + 1, questions.length),
+                ])
+              }
+              title="X"
+            />
+          </View>
           {question.answers !== null ? (
             <View style={styles.indent}>
               {question.answers.map((answer, answerIndex) => (
-                <TextInput
-                  key={answerIndex}
-                  style={styles.input}
-                  placeholder="Answer"
-                  defaultValue={answer}
-                  onChangeText={(newText) =>
-                    setQuestions(() => {
-                      questions[index].answers![answerIndex] = newText;
-                      return questions;
-                    })
-                  }
-                />
+                <View key={answerIndex} style={styles.answerWrap}>
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Answer"
+                    defaultValue={answer}
+                    onChangeText={(newText) =>
+                      setQuestions(() => {
+                        questions[index].answers![answerIndex] = newText;
+                        return questions;
+                      })
+                    }
+                  />
+                  <Button
+                    onPress={() => {
+                      setQuestions([
+                        ...questions.slice(0, index),
+                        {
+                          text: questions[index].text,
+                          answers: [
+                            ...questions[index].answers!.slice(0, answerIndex),
+                            ...questions[index].answers!.slice(answerIndex + 1),
+                          ],
+                          type: questions[index].type,
+                        },
+                        ...questions.slice(index + 1),
+                      ]);
+                    }}
+                    title="X"
+                  />
+                </View>
               ))}
               <Button
                 onPress={() =>
@@ -98,6 +128,7 @@ const CreateTest = ({ navigation }: CreateTestProps) => {
                       answers: [...(questions[index].answers ?? []), ""],
                       type: questions[index].type,
                     },
+                    ...questions.slice(index + 1),
                   ])
                 }
                 title="Add Answer"
@@ -138,7 +169,9 @@ const CreateTest = ({ navigation }: CreateTestProps) => {
       <View style={styles.buttonContainer}>
         <Button
           onPress={async () => {
-            console.log(await submitTest());
+            const code: string = await submitTest();
+            console.log(code);
+            navigation.navigate("ViewCode", { code });
           }}
           title="Submit"
         />
@@ -166,6 +199,20 @@ const styles = StyleSheet.create({
     marginVertical: 4,
     fontSize: 20,
   },
+  questionInput: {
+    borderWidth: 1,
+    borderRadius: 3,
+    marginVertical: 4,
+    fontSize: 20,
+    width: "95%",
+  },
+  answerInput: {
+    borderWidth: 1,
+    borderRadius: 3,
+    marginVertical: 4,
+    fontSize: 20,
+    width: "95%",
+  },
   picker: {
     fontSize: 15,
     borderWidth: 1,
@@ -178,6 +225,14 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     marginTop: 10,
+  },
+  questionWrap: {
+    display: "flex",
+    flexDirection: "row",
+  },
+  answerWrap: {
+    display: "flex",
+    flexDirection: "row",
   },
 });
 
