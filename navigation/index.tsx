@@ -16,6 +16,7 @@ export type RootStackParamList = {
   Home: undefined;
   SolveTest: undefined;
   CreateTest: undefined;
+  ViewCode: { code: string };
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
