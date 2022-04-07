@@ -11,7 +11,7 @@ const Home = ({ navigation }: HomeProps) => {
     <View style={styles.container}>
       <View style={styles.buttonContainer}>
         <Button
-          onPress={() => navigation.navigate("SolveTest")}
+          onPress={() => navigation.navigate("EnterCode")}
           title="Solve test"
           color="#841584"
           accessibilityLabel="Solve test"

@@ -1,5 +1,5 @@
 export type QuestionType = {
-  type: string;
+  type: string; // @TODO: add enum
   name: string;
   answers: boolean;
 };

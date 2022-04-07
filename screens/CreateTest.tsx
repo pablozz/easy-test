@@ -170,7 +170,6 @@ const CreateTest = ({ navigation }: CreateTestProps) => {
         <Button
           onPress={async () => {
             const code: string = await submitTest();
-            console.log(code);
             navigation.navigate("ViewCode", { code });
           }}
           title="Submit"

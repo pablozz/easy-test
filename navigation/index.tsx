@@ -3,6 +3,7 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import * as React from "react";
 
 import { RootScreens } from "../constants/screens";
+import { Test } from "../types/test";
 
 export default function Navigation() {
   return (
@@ -14,9 +15,10 @@ export default function Navigation() {
 
 export type RootStackParamList = {
   Home: undefined;
-  SolveTest: undefined;
+  SolveTest: Test;
   CreateTest: undefined;
   ViewCode: { code: string };
+  EnterCode: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
