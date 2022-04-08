@@ -1,4 +1,5 @@
 import CreateTest from "../screens/CreateTest";
+import EnterCode from "../screens/EnterCode";
 import Home from "../screens/Home";
 import SolveTest from "../screens/SolveTest";
 import ViewCode from "../screens/ViewCode";
@@ -23,5 +24,9 @@ export const RootScreens: Screens = {
   VIEW_CODE: {
     name: "ViewCode",
     component: ViewCode,
+  },
+  ENTER_CODE: {
+    name: "EnterCode",
+    component: EnterCode,
   },
 };

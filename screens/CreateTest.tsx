@@ -170,7 +170,6 @@ const CreateTest = ({ navigation }: CreateTestProps) => {
         <Button
           onPress={async () => {
             const code: string = await submitTest();
-            console.log(code);
             navigation.navigate("ViewCode", { code });
           }}
           title="Submit"
@@ -186,7 +185,8 @@ const styles = StyleSheet.create({
     alignItems: "stretch",
     justifyContent: "flex-start",
     flex: 1,
-    paddingHorizontal: 20,
+    paddingHorizontal: 24,
+    paddingVertical: 32,
   },
   title: {
     textAlign: "center",
