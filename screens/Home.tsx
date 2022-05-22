@@ -25,6 +25,14 @@ const Home = ({ navigation }: HomeProps) => {
           accessibilityLabel="Create test"
         />
       </View>
+      <View style={styles.buttonContainer}>
+        <Button
+          onPress={() => navigation.navigate("Login")}
+          title="Login"
+          color="#B88584"
+          accessibilityLabel="Login"
+        />
+      </View>
     </View>
   );
 };
