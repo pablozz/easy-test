@@ -1,5 +1,5 @@
 import React from "react";
-import { RootStackParamList } from "../navigation";
+import { RootStackParamList } from "..";
 import { Button, Text, TextInput, View, StyleSheet } from "react-native";
 import { Controller, useForm } from "react-hook-form";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";

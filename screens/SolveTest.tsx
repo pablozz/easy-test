@@ -1,17 +1,27 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import React from "react";
+import React, { useState } from "react";
 import { View, StyleSheet, Text } from "react-native";
 import SolveTestForm from "../modules/SolveTestForm";
 
-import { RootStackParamList } from "../navigation";
+import { RootStackParamList } from "..";
+import { getJWT } from "../utils/storage";
 
 export type SolveTestProps = NativeStackScreenProps<
   RootStackParamList,
   "SolveTest"
 >;
 
-const SolveTest = ({ route }: SolveTestProps) => {
+const SolveTest = ({ route, navigation }: SolveTestProps) => {
   const { name, description, questions } = route.params;
+  const [jwt, setJWT] = useState<string | null>(null);
+
+  getJWT().then((value) => {
+    setJWT(value);
+  });
+
+  if (!jwt) {
+    navigation.navigate("Login");
+  }
 
   return (
     <View style={styles.container}>

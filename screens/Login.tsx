@@ -1,10 +1,10 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import React from "react";
-import { RootStackParamList } from "../navigation";
+import React, { useState } from "react";
+import { RootStackParamList } from "..";
 import { Button, Text, TextInput, View, StyleSheet } from "react-native";
 import { Urls } from "../constants/urls";
 import { Controller, useForm } from "react-hook-form";
-
+import { saveJWT, getJWT } from "../utils/storage";
 export type LoginProps = NativeStackScreenProps<RootStackParamList, "Login">;
 
 type FormData = {
@@ -25,6 +25,12 @@ const Login = (props: LoginProps) => {
     },
   });
 
+  const [jwt, setJWT] = useState<string | null>(null);
+
+  getJWT().then((value) => {
+    setJWT(value);
+  });
+
   const onSubmit = async (data: FormData) => {
     const response = await fetch(Urls.DEV_API + "/auth/login", {
       method: "POST",
@@ -34,7 +40,11 @@ const Login = (props: LoginProps) => {
       body: JSON.stringify(data),
     }).then((res) => res.json());
     console.log({ token: response.jwt });
+    await saveJWT(response.jwt);
   };
+
+  if (!!jwt) {
+  }
 
   return (
     <View style={styles.container}>
