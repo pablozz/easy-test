@@ -1,6 +1,6 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import React, { useState } from "react";
-import { Text, TextInput, View, StyleSheet, Button } from "react-native";
+import { Text, View, StyleSheet, Button } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 
 import { RootStackParamList } from "../navigation";
@@ -10,6 +10,7 @@ import {
   questionTypesObject,
 } from "../constants/questionTypes";
 import { Urls } from "../constants/urls";
+import Input from "../components/Input";
 
 export type CreateTestProps = NativeStackScreenProps<
   RootStackParamList,
@@ -49,26 +50,26 @@ const CreateTest = ({ navigation }: CreateTestProps) => {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Create test</Text>
-      <TextInput
+      <Input
         style={styles.input}
         placeholder="Name"
         defaultValue={name}
-        onChangeText={(newText) => setName(newText)}
+        onChangeText={(newText: string) => setName(newText)}
       />
-      <TextInput
+      <Input
         style={styles.input}
         placeholder="Description"
         defaultValue={description}
-        onChangeText={(newText) => setDescription(newText)}
+        onChangeText={(newText: string) => setDescription(newText)}
       />
       {questions.map((question, index) => (
         <View key={index}>
           <View style={styles.questionWrap}>
-            <TextInput
+            <Input
               style={styles.questionInput}
               placeholder="Question"
               defaultValue={question.text}
-              onChangeText={(newText) =>
+              onChangeText={(newText: string) =>
                 setQuestions(() => {
                   questions[index].text = newText;
                   return questions;
@@ -89,11 +90,11 @@ const CreateTest = ({ navigation }: CreateTestProps) => {
             <View style={styles.indent}>
               {question.answers.map((answer, answerIndex) => (
                 <View key={answerIndex} style={styles.answerWrap}>
-                  <TextInput
+                  <Input
                     style={styles.input}
                     placeholder="Answer"
                     defaultValue={answer}
-                    onChangeText={(newText) =>
+                    onChangeText={(newText: string) =>
                       setQuestions(() => {
                         questions[index].answers![answerIndex] = newText;
                         return questions;

@@ -1,9 +1,12 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import React from "react";
-import { RootStackParamList } from "../navigation";
-import { Button, Text, TextInput, View, StyleSheet } from "react-native";
-import { Urls } from "../constants/urls";
+import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
+
+import { RootStackParamList } from "../navigation";
+import { Button, Text, View, StyleSheet } from "react-native";
+import { Urls } from "../constants/urls";
+import Input from "../components/Input";
+import Snackbar from "../components/Snackbar";
 
 export type LoginProps = NativeStackScreenProps<RootStackParamList, "Login">;
 
@@ -12,8 +15,9 @@ type FormData = {
   password: string;
 };
 
-const Login = (props: LoginProps) => {
-  const { navigation } = props;
+const Login = ({ navigation }: LoginProps) => {
+  const [errorSnackbarVisible, setErrorSnackbarVisible] = useState(false);
+
   const {
     control,
     handleSubmit,
@@ -33,64 +37,78 @@ const Login = (props: LoginProps) => {
       },
       body: JSON.stringify(data),
     }).then((res) => res.json());
-    console.log({ token: response.jwt });
+
+    if (!response.jwt) {
+      setErrorSnackbarVisible(true);
+    }
   };
 
   return (
-    <View style={styles.container}>
-      <Controller
-        control={control}
-        rules={{
-          required: true,
-          minLength: 5,
-        }}
-        render={({ field: { onChange, onBlur, value } }) => (
-          <TextInput
-            style={styles.input}
-            onBlur={onBlur}
-            onChangeText={onChange}
-            value={value}
-            placeholder="Email"
-            accessibilityLabel="Email"
+    <>
+      <View style={styles.container}>
+        <View style={styles.loginCointainer}>
+          <Controller
+            control={control}
+            rules={{
+              required: true,
+              minLength: 5,
+            }}
+            render={({ field: { onChange, onBlur, value } }) => (
+              <Input
+                onBlur={onBlur}
+                onChangeText={onChange}
+                value={value}
+                placeholder="Email"
+                accessibilityLabel="Email"
+              />
+            )}
+            name="email"
           />
-        )}
-        name="email"
-      />
-      {errors.email && (
-        <Text>Your email should be at least 5 characters long</Text>
-      )}
-      <Controller
-        control={control}
-        rules={{
-          required: true,
-          minLength: 5,
-        }}
-        render={({ field: { onChange, onBlur, value } }) => (
-          <TextInput
-            style={styles.input}
-            onBlur={onBlur}
-            onChangeText={onChange}
-            value={value}
-            placeholder="Password"
-            accessibilityLabel="Password"
+          {errors.email && (
+            <Text>Your email should be at least 5 characters long</Text>
+          )}
+          <Controller
+            control={control}
+            rules={{
+              required: true,
+              minLength: 5,
+            }}
+            render={({ field: { onChange, onBlur, value } }) => (
+              <Input
+                onBlur={onBlur}
+                onChangeText={onChange}
+                value={value}
+                placeholder="Password"
+                accessibilityLabel="Password"
+                secureTextEntry={true}
+              />
+            )}
+            name="password"
           />
-        )}
-        name="password"
-      />
-      {errors.email && (
-        <Text>Your password should be at least 5 characters long</Text>
-      )}
-      <Button onPress={handleSubmit(onSubmit)} title="login" />
-      <Text>Don't have an account yet?</Text>
-      <View>
-        <Button
-          onPress={() => navigation.navigate("Register")}
-          title="Register"
-          color="#B88584"
-          accessibilityLabel="Register"
-        />
+          {errors.email && (
+            <Text>Your password should be at least 5 characters long</Text>
+          )}
+          <Button onPress={handleSubmit(onSubmit)} title="login" />
+        </View>
+        <View style={styles.registerContainer}>
+          <Text>Don't have an account yet?</Text>
+          <View>
+            <Button
+              onPress={() => navigation.navigate("Register")}
+              title="Register"
+              color="#B88584"
+              accessibilityLabel="Register"
+            />
+          </View>
+        </View>
       </View>
-    </View>
+      <Snackbar
+        visible={errorSnackbarVisible}
+        onDismiss={() => setErrorSnackbarVisible(false)}
+      >
+        Failed to login
+      </Snackbar>
+    </>
   );
 };
 
@@ -98,9 +116,12 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: "white",
     alignItems: "center",
-    justifyContent: "flex-start",
+    justifyContent: "space-between",
     flex: 1,
     padding: 10,
+  },
+  loginCointainer: {
+    width: "100%",
   },
   textContainer: {
     padding: 25,
@@ -108,11 +129,9 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     borderRadius: 12,
   },
-  input: {
-    borderWidth: 1,
-    borderRadius: 3,
-    marginVertical: 4,
-    fontSize: 20,
+  registerContainer: {
+    width: "100%",
+    marginBottom: 64,
   },
 });
 

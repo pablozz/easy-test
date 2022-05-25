@@ -19,6 +19,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     padding: 8,
     backgroundColor: "white",
+    width: "100%",
   },
   inputError: {
     borderWidth: 3,

@@ -2,7 +2,7 @@ import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import React, { useState } from "react";
 import { StyleSheet, View, Text, Button } from "react-native";
 
-import Input from "../components/Input.tsx";
+import Input from "../components/Input";
 import { Urls } from "../constants/urls";
 import { RootStackParamList } from "../navigation";
 import { Test } from "../types/test";
