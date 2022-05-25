@@ -4,7 +4,7 @@ import { StyleSheet, View, Text, Button } from "react-native";
 
 import Input from "../components/Input.tsx";
 import { Urls } from "../constants/urls";
-import { RootStackParamList } from "../navigation";
+import { RootStackParamList } from "..";
 import { Test } from "../types/test";
 
 type EnterCodeProps = NativeStackScreenProps<RootStackParamList, "CreateTest">;
