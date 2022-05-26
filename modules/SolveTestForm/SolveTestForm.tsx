@@ -23,7 +23,7 @@ const SolveTestForm = ({ questions, jwt }: ISolveTestFormProps) => {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        // Authorization: "Bearer " + jwt,
+        Authorization: "Bearer " + jwt,
       },
       body: JSON.stringify(data),
     }).then((res) => res.status);
