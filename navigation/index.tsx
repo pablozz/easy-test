@@ -22,6 +22,8 @@ export type RootStackParamList = {
   Login: undefined;
   Register: undefined;
   TestsList: undefined;
+  TestReview: { testId: string };
+  CreatedTestReview: { test: any }; // @TODO: add appropriate type
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();

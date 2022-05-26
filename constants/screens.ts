@@ -6,6 +6,8 @@ import Register from "../screens/Register";
 import SolveTest from "../screens/SolveTest";
 import ViewCode from "../screens/ViewCode";
 import TestsList from "../screens/TestsList";
+import TestReview from "../screens/TestReview";
+import CreatedTestReview from "../screens/CreatedTestReview";
 
 type Screens = {
   [name: string]: any; // @TODO: add appropriate type
@@ -40,8 +42,16 @@ export const RootScreens: Screens = {
     name: "Register",
     component: Register,
   },
-  TEST_REVIEW: {
+  TESTS_LIST: {
     name: "TestsList",
     component: TestsList,
+  },
+  TEST_REVIEW: {
+    name: "TestReview",
+    component: TestReview,
+  },
+  CREATED_TEST_REVIEW: {
+    name: "CreatedTestReview",
+    component: CreatedTestReview,
   },
 };

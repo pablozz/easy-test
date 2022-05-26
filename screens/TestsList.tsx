@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Text, StyleSheet, View, Button } from "react-native";
+import { Text, StyleSheet, View, ScrollView } from "react-native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import {
   Card,
@@ -11,7 +11,7 @@ import {
 
 import { RootStackParamList } from "../navigation";
 import { Urls } from "../constants/urls";
-import { getJWT } from "../utils/storage";
+import { useAuth } from "../hooks/useAuth";
 
 export type TestsListProps = NativeStackScreenProps<
   RootStackParamList,
@@ -21,27 +21,21 @@ export type TestsListProps = NativeStackScreenProps<
 const TestsList = ({ route, navigation }: TestsListProps) => {
   const [tests, setTests] = useState<any>(null); // @TODO: add appropriate type
   const [loading, setLoading] = useState(false);
-  const [jwt, setJWT] = useState<string | null>(null);
 
-  useEffect(() => {}, []);
+  const { getJWT } = useAuth(navigation);
 
   useEffect(() => {
-    const fetchJWT = async () => {
-      const token = await getJWT();
-      setJWT(token);
-    };
-    fetchJWT();
-
     const fetchTests = async () => {
       setLoading(true);
+
       const response = await fetch(Urls.DEV_API + "/Tests/user", {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          Authorization: "Bearer " + jwt,
+          Authorization: "Bearer " + (await getJWT()),
         },
       }).then(async (res) => {
-        return res.json();
+        return await res.json();
       });
 
       setLoading(false);
@@ -52,27 +46,31 @@ const TestsList = ({ route, navigation }: TestsListProps) => {
   }, []);
 
   return (
-    <View>
+    <ScrollView>
       <View>
         <Text style={styles.sectionTitle}>Created tests</Text>
         {/* @TODO: add appropriate type */}
         {loading ? (
           <ActivityIndicator animating={loading} />
         ) : (
-          tests?.createdTests?.map(
-            ({ name, description }: any, index: number) => (
-              <Card key={index}>
-                <Card.Title title={name} subtitle={description} />
-                <Card.Actions
-                  style={{ display: "flex", justifyContent: "flex-end" }}
+          tests?.createdTests?.map((test: any, index: number) => (
+            <Card key={index} style={styles.card}>
+              <Card.Title title={test.name} subtitle={test.description} />
+              <Card.Actions
+                style={{ display: "flex", justifyContent: "flex-end" }}
+              >
+                <PaperButton
+                  onPress={() =>
+                    navigation.navigate("CreatedTestReview", {
+                      test,
+                    })
+                  }
                 >
-                  <PaperButton onPress={() => console.log("a")}>
-                    View
-                  </PaperButton>
-                </Card.Actions>
-              </Card>
-            )
-          )
+                  View
+                </PaperButton>
+              </Card.Actions>
+            </Card>
+          ))
         )}
       </View>
       <View>
@@ -81,13 +79,19 @@ const TestsList = ({ route, navigation }: TestsListProps) => {
           <ActivityIndicator animating={loading} />
         ) : (
           tests?.solvedTests?.map(
-            ({ testName, description }: any, index: number) => (
-              <Card key={index}>
+            ({ testName, description, answeredTestId }: any, index: number) => (
+              <Card key={index} style={styles.card}>
                 <Card.Title title={testName} subtitle={description} />
                 <Card.Actions
                   style={{ display: "flex", justifyContent: "flex-end" }}
                 >
-                  <PaperButton onPress={() => console.log("b")}>
+                  <PaperButton
+                    onPress={() =>
+                      navigation.navigate("TestReview", {
+                        testId: answeredTestId,
+                      })
+                    }
+                  >
                     View
                   </PaperButton>
                 </Card.Actions>
@@ -96,7 +100,7 @@ const TestsList = ({ route, navigation }: TestsListProps) => {
           )
         )}
       </View>
-    </View>
+    </ScrollView>
   );
 };
 
@@ -105,6 +109,9 @@ const styles = StyleSheet.create({
     fontSize: 24,
     marginVertical: 24,
     marginHorizontal: 12,
+  },
+  card: {
+    marginBottom: 8,
   },
 });
 

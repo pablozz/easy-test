@@ -12,6 +12,8 @@ export type ViewCodeProps = NativeStackScreenProps<
 
 const ViewCode = ({ route, navigation }: ViewCodeProps) => {
   const { code } = route.params;
+  // console.log(code);
+
   const copyCode = (code: string): void => {
     Clipboard.setString(code);
   };

@@ -9,7 +9,7 @@ import { Urls } from "../constants/urls";
 import Input from "../components/Input";
 import Snackbar from "../components/Snackbar";
 
-import { saveJWT, getJWT } from "../utils/storage";
+import { useAuth } from "../hooks/useAuth";
 export type LoginProps = NativeStackScreenProps<RootStackParamList, "Login">;
 
 type FormData = {
@@ -20,31 +20,24 @@ type FormData = {
 const Login = ({ navigation }: LoginProps) => {
   const [errorSnackbarVisible, setErrorSnackbarVisible] = useState(false);
 
+  const { jwt, saveJWT } = useAuth();
+
   const {
     control,
     handleSubmit,
     formState: { errors },
   } = useForm<FormData>({
     defaultValues: {
-      email: "",
-      password: "",
+      email: "mantas.ptakauskas@gmail.com",
+      password: "testas123",
     },
   });
 
-  const [jwt, setJWT] = useState<string | null>(null);
-  const [refetchJWT, setRefetchJWT] = useState(false);
-
   useEffect(() => {
-    const fetchJWT = async () => {
-      const token = await getJWT();
-      setJWT(token);
-    };
-    fetchJWT().then(() => {
-      if (jwt !== null) {
-        navigation.navigate("Home");
-      }
-    });
-  }, [refetchJWT]);
+    if (jwt !== null) {
+      navigation.navigate("Home");
+    }
+  }, [jwt]);
 
   const onSubmit = async (data: FormData) => {
     const response = await fetch(Urls.DEV_API + "/auth/login", {
@@ -59,8 +52,7 @@ const Login = ({ navigation }: LoginProps) => {
       setErrorSnackbarVisible(true);
     }
 
-    await saveJWT(response.jwt);
-    setRefetchJWT(!refetchJWT);
+    saveJWT(response.jwt);
   };
 
   return (
