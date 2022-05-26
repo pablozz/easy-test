@@ -1,10 +1,10 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Text, TextInput, View, StyleSheet, Button } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import { getJWT } from "../utils/storage";
 
-import { RootStackParamList } from "..";
+import { RootStackParamList } from "../navigation";
 import {
   QuestionType,
   questionTypesArray,
@@ -38,7 +38,6 @@ const CreateTest = ({ navigation }: CreateTestProps) => {
       description,
       questions,
     };
-    const jwt = await getJWT();
     const response = await fetch(Urls.DEV_API + "/tests", {
       method: "POST",
       headers: {
@@ -50,13 +49,17 @@ const CreateTest = ({ navigation }: CreateTestProps) => {
     return response.code;
   };
 
-  getJWT().then((value) => {
-    setJWT(value);
-  });
-
-  if (!jwt) {
-    navigation.navigate("Login");
-  }
+  useEffect(() => {
+    const fetchJWT = async () => {
+      const token = await getJWT();
+      setJWT(token);
+    };
+    fetchJWT().then(() => {
+      if (!jwt) {
+        navigation.navigate("Login");
+      }
+    });
+  }, []);
 
   return (
     <View style={styles.container}>

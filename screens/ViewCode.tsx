@@ -3,7 +3,7 @@ import React from "react";
 import { Text, StyleSheet, View, Button } from "react-native";
 import Clipboard from "@react-native-community/clipboard";
 
-import { RootStackParamList } from "..";
+import { RootStackParamList } from "../navigation";
 
 export type ViewCodeProps = NativeStackScreenProps<
   RootStackParamList,

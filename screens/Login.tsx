@@ -1,6 +1,6 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import React, { useState } from "react";
-import { RootStackParamList } from "..";
+import React, { useState, useEffect } from "react";
+import { RootStackParamList } from "../navigation";
 import { Button, Text, TextInput, View, StyleSheet } from "react-native";
 import { Urls } from "../constants/urls";
 import { Controller, useForm } from "react-hook-form";
@@ -26,10 +26,19 @@ const Login = (props: LoginProps) => {
   });
 
   const [jwt, setJWT] = useState<string | null>(null);
+  const [refetchJWT, setRefetchJWT] = useState(false);
 
-  getJWT().then((value) => {
-    setJWT(value);
-  });
+  useEffect(() => {
+    const fetchJWT = async () => {
+      const token = await getJWT();
+      setJWT(token);
+    };
+    fetchJWT().then(() => {
+      if (jwt !== null) {
+        navigation.navigate("Home");
+      }
+    });
+  }, [refetchJWT]);
 
   const onSubmit = async (data: FormData) => {
     const response = await fetch(Urls.DEV_API + "/auth/login", {
@@ -41,10 +50,8 @@ const Login = (props: LoginProps) => {
     }).then((res) => res.json());
     console.log({ token: response.jwt });
     await saveJWT(response.jwt);
+    setRefetchJWT(!refetchJWT);
   };
-
-  if (!!jwt) {
-  }
 
   return (
     <View style={styles.container}>
