@@ -9,6 +9,8 @@ export type HomeProps = NativeStackScreenProps<RootStackParamList, "Home">;
 const Home = ({ navigation }: HomeProps) => {
   const [jwt, setJWT] = useState<string | null>(null);
 
+  console.log(jwt);
+
   useEffect(() => {
     const fetchJWT = async () => {
       const token = await getJWT();
@@ -23,7 +25,7 @@ const Home = ({ navigation }: HomeProps) => {
         <Button
           onPress={() => navigation.navigate("EnterCode")}
           title="Solve test"
-          color="#841584"
+          color="#B8860B"
           accessibilityLabel="Solve test"
         />
       </View>
@@ -35,12 +37,20 @@ const Home = ({ navigation }: HomeProps) => {
           accessibilityLabel="Create test"
         />
       </View>
+      <View style={styles.buttonContainer}>
+        <Button
+          onPress={() => navigation.navigate("TestsList")}
+          title="Review tests"
+          color="#B8860B"
+          accessibilityLabel="Review testst"
+        />
+      </View>
       {!jwt && (
         <View style={styles.buttonContainer}>
           <Button
             onPress={() => navigation.navigate("Login")}
             title="Login"
-            color="#B88584"
+            color="#841584"
             accessibilityLabel="Login"
           />
         </View>

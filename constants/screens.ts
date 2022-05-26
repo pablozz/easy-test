@@ -5,6 +5,7 @@ import Login from "../screens/Login";
 import Register from "../screens/Register";
 import SolveTest from "../screens/SolveTest";
 import ViewCode from "../screens/ViewCode";
+import TestsList from "../screens/TestsList";
 
 type Screens = {
   [name: string]: any; // @TODO: add appropriate type
@@ -38,5 +39,9 @@ export const RootScreens: Screens = {
   REGISTER: {
     name: "Register",
     component: Register,
+  },
+  TEST_REVIEW: {
+    name: "TestsList",
+    component: TestsList,
   },
 };

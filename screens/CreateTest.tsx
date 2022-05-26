@@ -3,8 +3,8 @@ import React, { useState, useEffect } from "react";
 import { Text, View, StyleSheet, Button } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import { Checkbox } from "react-native-paper";
-import { getJWT } from "../utils/storage";
 
+import { getJWT } from "../utils/storage";
 import { RootStackParamList } from "../navigation";
 import {
   QuestionType,
@@ -13,6 +13,7 @@ import {
 } from "../constants/questionTypes";
 import { Urls } from "../constants/urls";
 import Input from "../components/Input";
+import { useAuth } from "../hooks/useAuth";
 
 export type CreateTestProps = NativeStackScreenProps<
   RootStackParamList,
@@ -37,7 +38,9 @@ const CreateTest = ({ navigation }: CreateTestProps) => {
   const [questionType, setQuestionType] = useState<QuestionType>(
     questionTypesObject.open
   );
-  const [jwt, setJWT] = useState<string | null>(null);
+  const { jwt } = useAuth();
+  console.log(jwt);
+  // const [jwt, setJWT] = useState<string | null>(null);
 
   const submitTest = async (): Promise<string> => {
     const test = {
@@ -57,17 +60,17 @@ const CreateTest = ({ navigation }: CreateTestProps) => {
     return response.code;
   };
 
-  useEffect(() => {
-    const fetchJWT = async () => {
-      const token = await getJWT();
-      setJWT(token);
-    };
-    fetchJWT().then(() => {
-      if (!jwt) {
-        navigation.navigate("Login");
-      }
-    });
-  }, []);
+  // useEffect(() => {
+  //   const fetchJWT = async () => {
+  //     const token = await getJWT();
+  //     setJWT(token);
+  //   };
+  //   fetchJWT().then(() => {
+  //     if (!jwt) {
+  //       navigation.navigate("Login");
+  //     }
+  //   });
+  // }, []);
 
   return (
     <View style={styles.container}>
