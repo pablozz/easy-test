@@ -1,17 +1,22 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { View, Button, StyleSheet } from "react-native";
 import { getJWT } from "../utils/storage";
-import { RootStackParamList } from "..";
+import { RootStackParamList } from "../navigation";
 
 export type HomeProps = NativeStackScreenProps<RootStackParamList, "Home">;
 
 const Home = ({ navigation }: HomeProps) => {
   const [jwt, setJWT] = useState<string | null>(null);
 
-  getJWT().then((value) => {
-    setJWT(value);
-  });
+  useEffect(() => {
+    const fetchJWT = async () => {
+      const token = await getJWT();
+      setJWT(token);
+    };
+    fetchJWT();
+  }, []);
+
   return (
     <View style={styles.container}>
       <View style={styles.buttonContainer}>

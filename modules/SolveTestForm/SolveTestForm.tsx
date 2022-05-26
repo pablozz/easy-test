@@ -1,18 +1,32 @@
 import React, { useState } from "react";
 import { View, Text, StyleSheet, Button } from "react-native";
+import { Urls } from "../../constants/urls";
 
 import { TestQuestion } from "../../types/test";
 import Answer from "./Answer";
 
 interface ISolveTestFormProps {
   questions: TestQuestion[];
+  jwt: string;
 }
 
-const SolveTestForm = ({ questions }: ISolveTestFormProps) => {
+const SolveTestForm = ({ questions, jwt }: ISolveTestFormProps) => {
   const [answers, setAnswers] = useState<{ [key: string]: string }>({});
 
-  const handleSubmit = () => {
-    console.log(answers);
+  const handleSubmit = async () => {
+    const data = Object.entries(answers).map((value) => ({
+      questionId: value[0],
+      answer: value[1],
+    }));
+    const response = await fetch(Urls.DEV_API + "/tests/answered", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + jwt,
+      },
+      body: JSON.stringify(data),
+    }).then((res) => res.status);
+    console.log(response);
   };
 
   return (
