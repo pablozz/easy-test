@@ -33,7 +33,7 @@ const SolveTest = ({ route, navigation }: SolveTestProps) => {
         <Text style={styles.title}>{name}</Text>
         <Text>{description}</Text>
       </View>
-      <SolveTestForm questions={questions} jwt={jwt ?? ""} />
+      <SolveTestForm questions={questions} jwt={jwt!} />
     </View>
   );
 };
