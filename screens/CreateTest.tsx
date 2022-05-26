@@ -1,8 +1,8 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import React, { useEffect, useState } from "react";
-import { Text, TextInput, View, StyleSheet, Button } from "react-native";
+import React, { useState } from "react";
+import { Text, View, StyleSheet, Button, ScrollView } from "react-native";
 import { Picker } from "@react-native-picker/picker";
-import { getJWT } from "../utils/storage";
+import { Checkbox } from "react-native-paper";
 
 import { RootStackParamList } from "../navigation";
 import {
@@ -11,15 +11,22 @@ import {
   questionTypesObject,
 } from "../constants/questionTypes";
 import { Urls } from "../constants/urls";
+import Input from "../components/Input";
+import { useAuth } from "../hooks/useAuth";
 
 export type CreateTestProps = NativeStackScreenProps<
   RootStackParamList,
   "CreateTest"
 >;
 
+interface IAnswer {
+  text: string | null;
+  isCorrect: boolean;
+}
+
 export interface IQuestion {
   text: string;
-  answers: string[] | null;
+  answers: IAnswer[] | null;
   type: string;
 }
 
@@ -30,7 +37,7 @@ const CreateTest = ({ navigation }: CreateTestProps) => {
   const [questionType, setQuestionType] = useState<QuestionType>(
     questionTypesObject.open
   );
-  const [jwt, setJWT] = useState<string | null>(null);
+  const { jwt } = useAuth(navigation);
 
   const submitTest = async (): Promise<string> => {
     const test = {
@@ -38,6 +45,7 @@ const CreateTest = ({ navigation }: CreateTestProps) => {
       description,
       questions,
     };
+
     const response = await fetch(Urls.DEV_API + "/tests", {
       method: "POST",
       headers: {
@@ -49,148 +57,180 @@ const CreateTest = ({ navigation }: CreateTestProps) => {
     return response.code;
   };
 
-  useEffect(() => {
-    const fetchJWT = async () => {
-      const token = await getJWT();
-      setJWT(token);
-    };
-    fetchJWT().then(() => {
-      if (!jwt) {
-        navigation.navigate("Login");
-      }
-    });
-  }, []);
-
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Create test</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Name"
-        defaultValue={name}
-        onChangeText={(newText) => setName(newText)}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Description"
-        defaultValue={description}
-        onChangeText={(newText) => setDescription(newText)}
-      />
-      {questions.map((question, index) => (
-        <View key={index}>
-          <View style={styles.questionWrap}>
-            <TextInput
-              style={styles.questionInput}
-              placeholder="Question"
-              defaultValue={question.text}
-              onChangeText={(newText) =>
-                setQuestions(() => {
-                  questions[index].text = newText;
-                  return questions;
-                })
-              }
-            />
-            <Button
-              onPress={() =>
-                setQuestions([
-                  ...questions.slice(0, index),
-                  ...questions.slice(index + 1, questions.length),
-                ])
-              }
-              title="X"
-            />
-          </View>
-          {question.answers !== null ? (
-            <View style={styles.indent}>
-              {question.answers.map((answer, answerIndex) => (
-                <View key={answerIndex} style={styles.answerWrap}>
-                  <TextInput
-                    style={styles.input}
-                    placeholder="Answer"
-                    defaultValue={answer}
-                    onChangeText={(newText) =>
-                      setQuestions(() => {
-                        questions[index].answers![answerIndex] = newText;
-                        return questions;
-                      })
-                    }
-                  />
+    <ScrollView>
+      <View style={styles.container}>
+        <Text style={styles.title}>Create test</Text>
+        <Input
+          style={styles.input}
+          placeholder="Name"
+          defaultValue={name}
+          onChangeText={(newText: string) => setName(newText)}
+        />
+        <Input
+          style={styles.input}
+          placeholder="Description"
+          defaultValue={description}
+          onChangeText={(newText: string) => setDescription(newText)}
+        />
+        {questions.map((question, index) => (
+          <View key={index}>
+            <View style={styles.questionWrap}>
+              <Input
+                style={styles.input}
+                placeholder="Question"
+                defaultValue={question.text}
+                onChangeText={(newText: string) =>
+                  setQuestions(() => {
+                    questions[index].text = newText;
+                    return questions;
+                  })
+                }
+              />
+              <View style={styles.xButtonContainer}>
+                <Button
+                  onPress={() =>
+                    setQuestions([
+                      ...questions.slice(0, index),
+                      ...questions.slice(index + 1, questions.length),
+                    ])
+                  }
+                  title="x"
+                />
+              </View>
+            </View>
+            {question.answers !== null ? (
+              <View style={styles.indent}>
+                {question.answers.map((answer, answerIndex) => (
+                  <View key={answerIndex}>
+                    <View key={answerIndex} style={styles.answerWrap}>
+                      <Input
+                        style={styles.input}
+                        placeholder="Answer"
+                        defaultValue={answer.text}
+                        onChangeText={(newText: string) =>
+                          setQuestions(() => {
+                            questions[index].answers![answerIndex] = {
+                              text: newText,
+                              isCorrect: false,
+                            };
+                            return questions;
+                          })
+                        }
+                      />
+                      <View style={styles.xButtonContainer}>
+                        <Button
+                          onPress={() => {
+                            setQuestions([
+                              ...questions.slice(0, index),
+                              {
+                                text: questions[index].text,
+                                answers: [
+                                  ...questions[index].answers!.slice(
+                                    0,
+                                    answerIndex
+                                  ),
+                                  ...questions[index].answers!.slice(
+                                    answerIndex + 1
+                                  ),
+                                ],
+                                type: questions[index].type,
+                              },
+                              ...questions.slice(index + 1),
+                            ]);
+                          }}
+                          title="X"
+                        />
+                      </View>
+                    </View>
+                    <View
+                      style={{
+                        display: "flex",
+                        flexDirection: "row",
+                        alignItems: "center",
+                      }}
+                    >
+                      <Checkbox
+                        status={
+                          questions[index].answers![answerIndex]?.isCorrect
+                            ? "checked"
+                            : "unchecked"
+                        }
+                        onPress={() => {
+                          const newQuestions = questions.slice();
+                          newQuestions[index].answers![answerIndex].isCorrect =
+                            !newQuestions[index].answers![answerIndex]
+                              ?.isCorrect;
+                          setQuestions(newQuestions);
+                        }}
+                      />
+                      <Text>This is a correct answer</Text>
+                    </View>
+                  </View>
+                ))}
+                <View style={styles.answerButtonContainer}>
                   <Button
-                    onPress={() => {
+                    onPress={() =>
                       setQuestions([
                         ...questions.slice(0, index),
                         {
                           text: questions[index].text,
                           answers: [
-                            ...questions[index].answers!.slice(0, answerIndex),
-                            ...questions[index].answers!.slice(answerIndex + 1),
+                            ...(questions[index].answers ?? []),
+                            { text: "", isCorrect: false },
                           ],
                           type: questions[index].type,
                         },
                         ...questions.slice(index + 1),
-                      ]);
-                    }}
-                    title="X"
+                      ])
+                    }
+                    title="Add Answer"
                   />
                 </View>
-              ))}
-              <Button
-                onPress={() =>
-                  setQuestions([
-                    ...questions.slice(0, index),
-                    {
-                      text: questions[index].text,
-                      answers: [...(questions[index].answers ?? []), ""],
-                      type: questions[index].type,
-                    },
-                    ...questions.slice(index + 1),
-                  ])
-                }
-                title="Add Answer"
-              />
-            </View>
-          ) : null}
-        </View>
-      ))}
-      <Picker
-        selectedValue={questionType.type}
-        onValueChange={(itemValue, itemIndex) => {
-          setQuestionType(questionTypesArray[itemIndex]);
-        }}
-        style={styles.picker}
-        itemStyle={styles.pickerItem}
-      >
-        {questionTypesArray.map((questionType: QuestionType, index) => (
-          <Picker.Item
-            label={questionType.name}
-            value={questionType.type}
-            key={index}
-          />
+              </View>
+            ) : null}
+          </View>
         ))}
-      </Picker>
-      <Button
-        onPress={() =>
-          setQuestions([
-            ...questions,
-            {
-              text: "",
-              answers: questionType.answers ? [] : null,
-              type: questionType.type,
-            },
-          ])
-        }
-        title="Add Question"
-      />
-      <View style={styles.buttonContainer}>
-        <Button
-          onPress={async () => {
-            const code: string = await submitTest();
-            navigation.navigate("ViewCode", { code });
+        <Picker
+          selectedValue={questionType.type}
+          onValueChange={(itemValue, itemIndex) => {
+            setQuestionType(questionTypesArray[itemIndex]);
           }}
-          title="Submit"
+          style={styles.picker}
+          itemStyle={styles.pickerItem}
+        >
+          {questionTypesArray.map((questionType: QuestionType, index) => (
+            <Picker.Item
+              label={questionType.name}
+              value={questionType.type}
+              key={index}
+            />
+          ))}
+        </Picker>
+        <Button
+          onPress={() =>
+            setQuestions([
+              ...questions,
+              {
+                text: "",
+                answers: questionType.answers ? [] : null,
+                type: questionType.type,
+              },
+            ])
+          }
+          title="Add Question"
         />
+        <View style={styles.buttonContainer}>
+          <Button
+            onPress={async () => {
+              const code: string = await submitTest();
+              navigation.navigate("ViewCode", { code });
+            }}
+            title="Submit"
+          />
+        </View>
       </View>
-    </View>
+    </ScrollView>
   );
 };
 
@@ -213,13 +253,7 @@ const styles = StyleSheet.create({
     borderRadius: 3,
     marginVertical: 4,
     fontSize: 20,
-  },
-  questionInput: {
-    borderWidth: 1,
-    borderRadius: 3,
-    marginVertical: 4,
-    fontSize: 20,
-    width: "95%",
+    width: "90%",
   },
   answerInput: {
     borderWidth: 1,
@@ -244,10 +278,22 @@ const styles = StyleSheet.create({
   questionWrap: {
     display: "flex",
     flexDirection: "row",
+    alignItems: "center",
   },
   answerWrap: {
     display: "flex",
     flexDirection: "row",
+    alignItems: "center",
+  },
+  xButtonContainer: {
+    width: 32,
+    marginLeft: 8,
+    marginRight: 8,
+  },
+  answerButtonContainer: {
+    display: "flex",
+    alignItems: "flex-end",
+    width: "90%",
   },
 });
 

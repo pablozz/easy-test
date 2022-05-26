@@ -2,7 +2,7 @@ import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 import { Checkbox, RadioButton } from "react-native-paper";
 
-import Input from "../../../components/Input.tsx"; // @TODO: add typescript imports "@"
+import Input from "../../../components/Input"; // @TODO: add typescript imports "@"
 import { TestAnswer } from "../../../types/test";
 
 interface IAnswerProps {

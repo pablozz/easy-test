@@ -1,22 +1,14 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { View, Button, StyleSheet } from "react-native";
-import { deleteJWT, getJWT } from "../utils/storage";
+
 import { RootStackParamList } from "../navigation";
+import { useAuth } from "../hooks/useAuth";
 
 export type HomeProps = NativeStackScreenProps<RootStackParamList, "Home">;
 
 const Home = ({ navigation }: HomeProps) => {
-  const [jwt, setJWT] = useState<string | null>(null);
-  const [refetchJWT, setRefetchJWT] = useState(false);
-
-  useEffect(() => {
-    const fetchJWT = async () => {
-      const token = await getJWT();
-      setJWT(token);
-    };
-    fetchJWT();
-  }, [refetchJWT]);
+  const { jwt, deleteJWT } = useAuth();
 
   return (
     <View style={styles.container}>
@@ -24,7 +16,7 @@ const Home = ({ navigation }: HomeProps) => {
         <Button
           onPress={() => navigation.navigate("EnterCode")}
           title="Solve test"
-          color="#841584"
+          color="#8FBC8F"
           accessibilityLabel="Solve test"
         />
       </View>
@@ -32,8 +24,16 @@ const Home = ({ navigation }: HomeProps) => {
         <Button
           onPress={() => navigation.navigate("CreateTest")}
           title="Create test"
-          color="#B8860B"
+          color="#8FBC8F"
           accessibilityLabel="Create test"
+        />
+      </View>
+      <View style={styles.buttonContainer}>
+        <Button
+          onPress={() => navigation.navigate("TestsList")}
+          title="Review tests"
+          color="#8FBC8F"
+          accessibilityLabel="Review testst"
         />
       </View>
       {!!jwt ? (
@@ -41,7 +41,6 @@ const Home = ({ navigation }: HomeProps) => {
           <Button
             onPress={() => {
               deleteJWT();
-              setRefetchJWT(!refetchJWT);
             }}
             title="Logout"
             color="#B88584"
@@ -53,7 +52,7 @@ const Home = ({ navigation }: HomeProps) => {
           <Button
             onPress={() => navigation.navigate("Login")}
             title="Login"
-            color="#B88584"
+            color="#841584"
             accessibilityLabel="Login"
           />
         </View>
@@ -68,7 +67,7 @@ const styles = StyleSheet.create({
     alignItems: "stretch",
     justifyContent: "center",
     flex: 1,
-    paddingHorizontal: 20,
+    paddingHorizontal: 16,
   },
   buttonContainer: {
     marginBottom: 8,

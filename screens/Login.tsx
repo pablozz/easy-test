@@ -1,10 +1,15 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import React, { useState, useEffect } from "react";
-import { RootStackParamList } from "../navigation";
-import { Button, Text, TextInput, View, StyleSheet } from "react-native";
-import { Urls } from "../constants/urls";
 import { Controller, useForm } from "react-hook-form";
-import { saveJWT, getJWT } from "../utils/storage";
+import React, { useState, useEffect } from "react";
+import { Button, Text, View, StyleSheet } from "react-native";
+
+import { RootStackParamList } from "../navigation";
+
+import { Urls } from "../constants/urls";
+import Input from "../components/Input";
+import Snackbar from "../components/Snackbar";
+
+import { useAuth } from "../hooks/useAuth";
 export type LoginProps = NativeStackScreenProps<RootStackParamList, "Login">;
 
 type FormData = {
@@ -12,33 +17,27 @@ type FormData = {
   password: string;
 };
 
-const Login = (props: LoginProps) => {
-  const { navigation } = props;
+const Login = ({ navigation }: LoginProps) => {
+  const [errorSnackbarVisible, setErrorSnackbarVisible] = useState(false);
+
+  const { jwt, saveJWT } = useAuth();
+
   const {
     control,
     handleSubmit,
     formState: { errors },
   } = useForm<FormData>({
     defaultValues: {
-      email: "",
-      password: "",
+      email: "mantas.ptakauskas@gmail.com",
+      password: "testas123",
     },
   });
 
-  const [jwt, setJWT] = useState<string | null>(null);
-  const [refetchJWT, setRefetchJWT] = useState(false);
-
   useEffect(() => {
-    const fetchJWT = async () => {
-      const token = await getJWT();
-      setJWT(token);
-    };
-    fetchJWT().then(() => {
-      if (jwt !== null) {
-        navigation.navigate("Home");
-      }
-    });
-  }, [refetchJWT]);
+    if (jwt !== null) {
+      navigation.navigate("Home");
+    }
+  }, [jwt]);
 
   const onSubmit = async (data: FormData) => {
     const response = await fetch(Urls.DEV_API + "/auth/login", {
@@ -48,66 +47,80 @@ const Login = (props: LoginProps) => {
       },
       body: JSON.stringify(data),
     }).then((res) => res.json());
-    console.log({ token: response.jwt });
-    await saveJWT(response.jwt);
-    setRefetchJWT(!refetchJWT);
+
+    if (!response.jwt) {
+      setErrorSnackbarVisible(true);
+    }
+
+    saveJWT(response.jwt);
   };
 
   return (
-    <View style={styles.container}>
-      <Controller
-        control={control}
-        rules={{
-          required: true,
-          minLength: 5,
-        }}
-        render={({ field: { onChange, onBlur, value } }) => (
-          <TextInput
-            style={styles.input}
-            onBlur={onBlur}
-            onChangeText={onChange}
-            value={value}
-            placeholder="Email"
-            accessibilityLabel="Email"
+    <>
+      <View style={styles.container}>
+        <View style={styles.loginCointainer}>
+          <Controller
+            control={control}
+            rules={{
+              required: true,
+              minLength: 5,
+            }}
+            render={({ field: { onChange, onBlur, value } }) => (
+              <Input
+                onBlur={onBlur}
+                onChangeText={onChange}
+                value={value}
+                placeholder="Email"
+                accessibilityLabel="Email"
+              />
+            )}
+            name="email"
           />
-        )}
-        name="email"
-      />
-      {errors.email && (
-        <Text>Your email should be at least 5 characters long</Text>
-      )}
-      <Controller
-        control={control}
-        rules={{
-          required: true,
-          minLength: 5,
-        }}
-        render={({ field: { onChange, onBlur, value } }) => (
-          <TextInput
-            style={styles.input}
-            onBlur={onBlur}
-            onChangeText={onChange}
-            value={value}
-            placeholder="Password"
-            accessibilityLabel="Password"
+          {errors.email && (
+            <Text>Your email should be at least 5 characters long</Text>
+          )}
+          <Controller
+            control={control}
+            rules={{
+              required: true,
+              minLength: 5,
+            }}
+            render={({ field: { onChange, onBlur, value } }) => (
+              <Input
+                onBlur={onBlur}
+                onChangeText={onChange}
+                value={value}
+                placeholder="Password"
+                accessibilityLabel="Password"
+                secureTextEntry={true}
+              />
+            )}
+            name="password"
           />
-        )}
-        name="password"
-      />
-      {errors.email && (
-        <Text>Your password should be at least 5 characters long</Text>
-      )}
-      <Button onPress={handleSubmit(onSubmit)} title="login" />
-      <Text>Don't have an account yet?</Text>
-      <View>
-        <Button
-          onPress={() => navigation.navigate("Register")}
-          title="Register"
-          color="#B88584"
-          accessibilityLabel="Register"
-        />
+          {errors.email && (
+            <Text>Your password should be at least 5 characters long</Text>
+          )}
+          <Button onPress={handleSubmit(onSubmit)} title="login" />
+        </View>
+        <View style={styles.registerContainer}>
+          <Text>Don't have an account yet?</Text>
+          <View>
+            <Button
+              onPress={() => navigation.navigate("Register")}
+              title="Register"
+              color="#B88584"
+              accessibilityLabel="Register"
+            />
+          </View>
+        </View>
       </View>
-    </View>
+      <Snackbar
+        visible={errorSnackbarVisible}
+        onDismiss={() => setErrorSnackbarVisible(false)}
+      >
+        Failed to login
+      </Snackbar>
+    </>
   );
 };
 
@@ -115,9 +128,12 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: "white",
     alignItems: "center",
-    justifyContent: "flex-start",
+    justifyContent: "space-between",
     flex: 1,
     padding: 10,
+  },
+  loginCointainer: {
+    width: "100%",
   },
   textContainer: {
     padding: 25,
@@ -125,11 +141,9 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     borderRadius: 12,
   },
-  input: {
-    borderWidth: 1,
-    borderRadius: 3,
-    marginVertical: 4,
-    fontSize: 20,
+  registerContainer: {
+    width: "100%",
+    marginBottom: 64,
   },
 });
 
