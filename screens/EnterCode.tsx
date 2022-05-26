@@ -1,17 +1,31 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { StyleSheet, View, Text, Button } from "react-native";
 
 import Input from "../components/Input";
 import { Urls } from "../constants/urls";
 import { RootStackParamList } from "../navigation";
 import { Test } from "../types/test";
+import { getJWT } from "../utils/storage";
 
 type EnterCodeProps = NativeStackScreenProps<RootStackParamList, "CreateTest">;
 
 const EnterCode = ({ navigation }: EnterCodeProps) => {
   const [code, setCode] = useState("");
   const [codeError, setCodeError] = useState(false);
+  const [jwt, setJWT] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchJWT = async () => {
+      const token = await getJWT();
+      setJWT(token);
+    };
+    fetchJWT().then(() => {
+      if (!jwt) {
+        // navigation.navigate("Login");
+      }
+    });
+  }, []);
 
   const handleSubmit = async (): Promise<void> => {
     const response: Test = await fetch(`${Urls.DEV_API}/Tests/${code}`, {

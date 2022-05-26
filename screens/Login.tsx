@@ -1,13 +1,15 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
+import React, { useState, useEffect } from "react";
+import { Button, Text, View, StyleSheet } from "react-native";
 
 import { RootStackParamList } from "../navigation";
-import { Button, Text, View, StyleSheet } from "react-native";
+
 import { Urls } from "../constants/urls";
 import Input from "../components/Input";
 import Snackbar from "../components/Snackbar";
 
+import { saveJWT, getJWT } from "../utils/storage";
 export type LoginProps = NativeStackScreenProps<RootStackParamList, "Login">;
 
 type FormData = {
@@ -29,6 +31,21 @@ const Login = ({ navigation }: LoginProps) => {
     },
   });
 
+  const [jwt, setJWT] = useState<string | null>(null);
+  const [refetchJWT, setRefetchJWT] = useState(false);
+
+  useEffect(() => {
+    const fetchJWT = async () => {
+      const token = await getJWT();
+      setJWT(token);
+    };
+    fetchJWT().then(() => {
+      if (jwt !== null) {
+        navigation.navigate("Home");
+      }
+    });
+  }, [refetchJWT]);
+
   const onSubmit = async (data: FormData) => {
     const response = await fetch(Urls.DEV_API + "/auth/login", {
       method: "POST",
@@ -41,6 +58,9 @@ const Login = ({ navigation }: LoginProps) => {
     if (!response.jwt) {
       setErrorSnackbarVisible(true);
     }
+
+    await saveJWT(response.jwt);
+    setRefetchJWT(!refetchJWT);
   };
 
   return (

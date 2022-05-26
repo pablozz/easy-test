@@ -1,8 +1,9 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Text, View, StyleSheet, Button } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import { Checkbox } from "react-native-paper";
+import { getJWT } from "../utils/storage";
 
 import { RootStackParamList } from "../navigation";
 import {
@@ -36,6 +37,7 @@ const CreateTest = ({ navigation }: CreateTestProps) => {
   const [questionType, setQuestionType] = useState<QuestionType>(
     questionTypesObject.open
   );
+  const [jwt, setJWT] = useState<string | null>(null);
 
   const submitTest = async (): Promise<string> => {
     const test = {
@@ -48,11 +50,24 @@ const CreateTest = ({ navigation }: CreateTestProps) => {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        Authorization: "Bearer " + jwt,
       },
       body: JSON.stringify(test),
     }).then((res) => res.json());
     return response.code;
   };
+
+  useEffect(() => {
+    const fetchJWT = async () => {
+      const token = await getJWT();
+      setJWT(token);
+    };
+    fetchJWT().then(() => {
+      if (!jwt) {
+        navigation.navigate("Login");
+      }
+    });
+  }, []);
 
   return (
     <View style={styles.container}>
