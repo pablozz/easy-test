@@ -18,11 +18,12 @@ const SolveTestForm = ({ questions, jwt }: ISolveTestFormProps) => {
       questionId: value[0],
       answer: value[1],
     }));
+    // console.log(JSON.stringify(data));
     const response = await fetch(Urls.DEV_API + "/tests/answered", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: "Bearer " + jwt,
+        // Authorization: "Bearer " + jwt,
       },
       body: JSON.stringify(data),
     }).then((res) => res.status);

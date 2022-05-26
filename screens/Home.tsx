@@ -1,13 +1,14 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import React, { useEffect, useState } from "react";
 import { View, Button, StyleSheet } from "react-native";
-import { getJWT } from "../utils/storage";
+import { deleteJWT, getJWT } from "../utils/storage";
 import { RootStackParamList } from "../navigation";
 
 export type HomeProps = NativeStackScreenProps<RootStackParamList, "Home">;
 
 const Home = ({ navigation }: HomeProps) => {
   const [jwt, setJWT] = useState<string | null>(null);
+  const [refetchJWT, setRefetchJWT] = useState(false);
 
   console.log(jwt);
 
@@ -17,7 +18,7 @@ const Home = ({ navigation }: HomeProps) => {
       setJWT(token);
     };
     fetchJWT();
-  }, []);
+  }, [refetchJWT]);
 
   return (
     <View style={styles.container}>
@@ -45,7 +46,19 @@ const Home = ({ navigation }: HomeProps) => {
           accessibilityLabel="Review testst"
         />
       </View>
-      {!jwt && (
+      {!!jwt ? (
+        <View style={styles.buttonContainer}>
+          <Button
+            onPress={() => {
+              deleteJWT();
+              setRefetchJWT(!refetchJWT);
+            }}
+            title="Logout"
+            color="#B88584"
+            accessibilityLabel="Logout"
+          />
+        </View>
+      ) : (
         <View style={styles.buttonContainer}>
           <Button
             onPress={() => navigation.navigate("Login")}
